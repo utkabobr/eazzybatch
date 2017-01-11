@@ -1,0 +1,3 @@
+function LoadConfig(file)
+for /F "tokens=1,2* delims==" %%a in (%file%) do set %%a=%%b
+end

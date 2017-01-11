@@ -1,0 +1,6 @@
+@echo off
+set /p file=File: 
+base64("%%file%%",file)
+type %temp%\%~n0result.txt
+pause
+exit /b

@@ -1,0 +1,5 @@
+@echo off
+extIP()
+echo %result%
+pause
+exit /b

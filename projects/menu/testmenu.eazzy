@@ -1,0 +1,26 @@
+@echo off
+include menu.eazzy
+addmenu(testing,"Тест")
+addmenu(anothermenu,"Второе меню")
+addmenu(quit,"Выход")
+addxmenu(select,"Выбор")
+addxmenu(testing,"Тест")
+addxmenu(quit,"Выход")
+menu()
+exit /b
+:testing
+cls
+echo Проверка
+pause
+exit /b
+:anothermenu
+cleanmenu()
+addxmenu(select,"Выбор")
+addmenu(secmenutest,"Тест 2")
+addmenu(quit,"Выход")
+menu()
+exit /b
+:secmenutest
+echo 2 Тест
+pause
+exit /b

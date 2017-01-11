@@ -1,0 +1,6 @@
+@echo off
+set /p input=Md5: 
+md5("%%input%%",text)
+echo %result%
+pause
+exit /b

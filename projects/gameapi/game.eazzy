@@ -1,0 +1,19 @@
+@echo off
+#include menu.eazzy
+include engine.eazzy
+include Config.eazzy
+loadConfig(config.conf)
+addobject(2,1,X)
+addobject(4,2,X)
+addobject(8,3,X)
+addobject(2,4,H,hole)
+addtext(top,"SAMPLE GAME")
+addkey(116,chat)
+set debug=true
+set maxx=20
+set maxy=7
+menu()
+function chat()
+set /p chat=Text: 
+addtext(bottom,"%%nick%%: %%chat%%")
+end

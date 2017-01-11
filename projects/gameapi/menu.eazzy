@@ -1,0 +1,161 @@
+cleanmenu()
+function menu()
+set /a selectedpage=%selectedy%/20+1
+set tmp=
+set ynameran=false
+yname()
+rendermenu()
+scancode()
+if "%result%"=="97" (
+left()
+)
+if "%result%"=="2075" (
+left()
+)
+if "%result%"=="100" (
+right()
+)
+if "%result%"=="2077" (
+right()
+)
+if "%result%"=="119" (
+up()
+)
+if "%result%"=="2072" (
+up()
+)
+if "%result%"=="115" (
+down()
+)
+if "%result%"=="2080" (
+down()
+)
+if "%result%"=="13" (
+enter()
+)
+addkey(27,quit)
+ckkey(%%result%%)
+goto menu
+end
+function addmenu(func,text)
+set /a menuy+=1
+set /a page=%menuy%/20+1
+echo %menuy% %page% %1 %~2>>%temp%\%~n0menu.list
+end
+function up()
+set /A selectedy-=1
+if %selectedy%==0 (
+set selectedy=%menuy%
+)
+end
+function down()
+set /A selectedy+=1
+set /A tmp=%menuy%+1
+if %selectedy%==%tmp% (
+set selectedy=1
+)
+end
+function right()
+set /a selectedx+=1
+set /A tmp=%menux%+1
+if %selectedx%==%tmp% (
+set selectedx=1
+)
+end
+function left()
+set /a selectedx-=1
+if %selectedx%==0 (
+set selectedx=%menux%
+)
+end
+function enter()
+for /F "tokens=1,2,3*" %%a in (%temp%\%~n0menux.list) do (
+if %%a==%selectedx% (
+call :%%b "%%c" "%yname%"
+)
+)
+end
+function rendermenu()
+cls
+if exist "%temp%\%~n0toptext.list" type %temp%\%~n0toptext.list
+for /F "tokens=1,2,3,4*" %%a in (%temp%\%~n0menu.list) do (
+if %%a==%selectedy% (
+if %%b==%selectedpage% (
+echo.Û %%d %%e
+)
+)
+if not %%a==%selectedy% (
+if %%b==%selectedpage% (
+echo.± %%d %%e
+)
+)
+)
+for /F "tokens=1,2,3*" %%a in (%temp%\%~n0menux.list) do (
+if %%a==%selectedx% (
+set /p "x=[%%c] "<nul
+)
+if not %%a==%selectedx% (
+set /p "x=%%c "<nul
+)
+)
+echo.
+if exist "%temp%\%~n0bottomtext.list" type %temp%\%~n0bottomtext.list
+end
+function cleanmenu()
+set menuy=0
+set menux=0
+set selectedy=1
+set selectedx=1
+set selectedpage=1
+if exist %temp%\%~n0menux.list del %temp%\%~n0menux.list
+if exist %temp%\%~n0menu.list del %temp%\%~n0menu.list
+if exist %temp%\%~n0keys.list del %temp%\%~n0keys.list
+if exist %temp%\%~n0toptext.list del %temp%\%~n0toptext.list
+if exist %temp%\%~n0bottomtext.list del %temp%\%~n0bottomtext.list
+end
+function addxmenu()
+set /a menux+=1
+echo %menux% %1 %~2>>%temp%\%~n0menux.list
+end
+function select()
+for /F "tokens=1,2,3,4*" %%a in (%temp%\%~n0menu.list) do (
+if %%a==%selectedy% (
+call :%%c "%%d"
+)
+)
+end
+function quit()
+cleanmenu()
+exit
+end
+function addkey(key,func)
+echo %key% %func%>>%temp%\%~n0keys.list
+end
+function ckkey(key)
+for /F "tokens=1,2" %%a in (%temp%\%~n0keys.list) do (
+if %key%==%%a (
+call :%%b %yname%
+)
+)
+end
+function yname()
+for /F "tokens=1,2,3,4*" %%d in (%temp%\%~n0menu.list) do (
+if %%d==%selectedy% (
+if not %ynameran%==true (
+set yname=%%g
+if not q%%h==q set yname=%%g %%h
+set ynameran=true
+yname()
+)
+)
+)
+end
+function addtext(side,text)
+set text=%~2
+if q%side%==qtop (
+echo %text%>>%temp%\%~n0toptext.list
+)
+if q%side%==qbottom (
+echo %text%>>%temp%\%~n0bottomtext.list
+)
+end

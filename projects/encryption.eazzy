@@ -1,0 +1,11 @@
+@echo off
+echo encryption.eazzy:
+md5("encryption.eazzy",file)
+echo Md5: %result%
+crc32("encryption.eazzy")
+echo crc32: %result%
+base64("encryption.eazzy",file)
+echo Base64: 
+type %temp%\%~n0result.txt
+pause
+exit /b

@@ -1,0 +1,13 @@
+@echo off
+include menu.eazzy
+cls
+addxmenu(select,"Выбор")
+for /F "tokens=*" %%a in ('dir /B test') do (
+addmenu(run,"%%%%a")
+)
+addmenu(quit,"Выход")
+menu()
+exit /b
+function run(file)
+call test\%file%
+end

@@ -1,0 +1,214 @@
+cleanmenu()
+function menu()
+set /a selectedpagey=%selectedy%/20+1
+set tmp=
+rendermenu()
+scancode()
+if "%result%"=="97" (
+left()
+)
+if "%result%"=="2075" (
+left()
+)
+if "%result%"=="100" (
+right()
+)
+if "%result%"=="2077" (
+right()
+)
+if "%result%"=="119" (
+up()
+)
+if "%result%"=="2072" (
+up()
+)
+if "%result%"=="115" (
+down()
+)
+if "%result%"=="2080" (
+down()
+)
+#if "%result%"=="13" (
+#enter()
+#)
+addkey(27,quit)
+ckkey(%%result%%)
+goto menu
+end
+function up()
+set /A selectedy-=1
+set tmp2=q
+call set tmp1=q%%%tmp2%%selectedx%%selectedy%%%
+if %tmp1%==q1 (
+set /a selectedy+=1
+exit /b
+)
+if %selectedy%==0 (
+set /a selectedy=%maxy%-1
+exit /b
+)
+end
+function down()
+set /A selectedy+=1
+call set tmp1=q%%q%selectedx%%selectedy%%%
+set /a tmp=%maxy%
+if %tmp1%==q1 (
+set /a selectedy-=1
+exit /b
+)
+if %selectedy%==%tmp% (
+set selectedy=1
+exit /b
+)
+end
+function right()
+set /a selectedx+=1
+set tmp2=q
+call set tmp1=q%%%tmp2%%selectedx%%selectedy%%%
+if %tmp1%==q1 (
+set /a selectedx-=1
+exit /b
+)
+set tmp=%maxx%
+if %selectedx%==%tmp% (
+set /a selectedx=1
+exit /b
+)
+end
+function left()
+set /a selectedx-=1
+set tmp2=q
+call set tmp1=q%%%tmp2%%selectedx%%selectedy%%%
+if %tmp1%==q1 (
+set /a selectedx+=1
+exit /b
+)
+if %selectedx%==0 (
+set /a selectedx=%maxx%-1
+exit /b
+)
+end
+function enter()
+# TODO: ‘„…‹€’œ
+#start
+end
+function rendermenu()
+cls
+set x=1
+set y=1
+if exist "%temp%\%~n0toptext.list" type %temp%\%~n0toptext.list
+call :g1
+if q%debug%==qtrue echo X: %selectedx% Y: %selectedy%
+if exist "%temp%\%~n0bottomtext.list" type %temp%\%~n0bottomtext.list
+end
+function fill()
+if %x%==%selectedx% (
+if %y%==%selectedy% (
+set /a x+=1
+set /p "x11=%character%"<nul
+)
+)
+if not %1==%x% (
+if %1 GTR %x% (
+set /a x+=1
+set /p "x11=±"<nul
+goto fill
+)
+)
+set q%x%%y%=1
+set /p "x11=%2"<nul
+set /a x+=1
+end
+function hfill()
+if %x%==%selectedx% (
+if %y%==%selectedy% (
+set /a x+=1
+set /p "x11=%character%"<nul
+)
+)
+if not %1==%x% (
+if %1 GTR %x% (
+set /a x+=1
+set /p "x11=±"<nul
+goto hfill
+)
+)
+set q%x%%y%=2
+set /p "x11=%2"<nul
+set /a x+=1
+end
+function g1()
+if not %x%==%maxx% (
+for /F "tokens=1,2,3,4,5" %%a in (%temp%\%~n0objects.list) do (
+call :g2 %%a %%b %%c %%d %%e
+)
+if not %y%==%maxy% (
+fill(%%maxx%%)
+echo.
+set x=1
+set /a y+=1
+goto g1
+)
+)
+end
+function g2()
+if q%4==qhole (
+if %2==%y% (
+if %1==%x% (
+set q%x%%y%=2
+set q%x%%y%a=%5
+set /p "x11=%3"<nul
+set /a x+=1
+if not %1==%x% (
+hfill(%%1,%%3)
+)
+)
+)
+exit /b
+)
+if %2==%y% (
+if %1==%x% (
+set q%x%%y%=1
+set /a x+=1
+set /p "x11=%3"<nul
+)
+if not %1==%x% (
+fill(%%1,%%3)
+)
+)
+end
+function cleanmenu()
+set selectedy=1
+set selectedx=1
+set selectedpage=1
+if exist %temp%\%~n0keys.list del %temp%\%~n0keys.list
+if exist %temp%\%~n0toptext.list del %temp%\%~n0toptext.list
+if exist %temp%\%~n0bottomtext.list del %temp%\%~n0bottomtext.list
+if exist %temp%\%~n0objects.list del %temp%\%~n0objects.list
+end
+function quit()
+cleanmenu()
+exit
+end
+function addkey(key,func)
+echo %key% %func%>>%temp%\%~n0keys.list
+end
+function ckkey(key)
+for /F "tokens=1,2" %%a in (%temp%\%~n0keys.list) do (
+if q%key%==q%%a (
+call :%%b
+)
+)
+end
+function addtext(side,text)
+set text=%~2
+if q%side%==qtop (
+echo %text%>>%temp%\%~n0toptext.list
+)
+if q%side%==qbottom (
+echo %text%>>%temp%\%~n0bottomtext.list
+)
+end
+function addobject(tx,ty,object,type,func)
+echo %tx% %ty% %object% %type%>>%temp%\%~n0objects.list
+end

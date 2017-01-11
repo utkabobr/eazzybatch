@@ -1,0 +1,170 @@
+@echo off
+include menu.eazzy
+set folder=%~dp0
+loadsettings()
+:start
+cls
+cleanmenu()
+#set menutext=EAZZYMANAGER
+addtext(top,"EAZZYMANAGER v0.3")
+addtext(top,"%%folder%%")
+addtext(bottom,"BY YTKAB0BP")
+addxmenu(select,"Запустить")
+addmenu(switch,"..")
+for /F "tokens=*" %%a in ('dir /B %folder%') do (
+if not exist %folder%\%%a\nul (
+call :addmenu run "%%a"
+)
+if exist %folder%\%%a\nul (
+call :addmenu switch "%%a"
+)
+)
+if q%hiddenfiles%==qtrue (
+for /F "tokens=*" %%a in ('dir /AHS /B %folder%') do (
+if not exist %folder%\%%a\nul (
+call :addmenu run "%%a"
+)
+if exist %folder%\%%a\nul (
+call :addmenu switch "%%a"
+)
+)
+)
+)
+addxmenu(create,"Создать")
+addxmenu(edit,"Редактировать")
+addxmenu(settings,"Настройки")
+addxmenu(quit,"Выход")
+addkey(%%cryptokey%%,crypto)
+#addkey(101,edit)
+addkey(%%f6key%%,cswitch)
+addkey(%%renamekey%%,rename)
+addkey(%%cmdkey%%,cmd)
+addkey(1059,help)
+addkey(2083,del)
+addkey(1063,refresh)
+menu()
+exit /b
+function crypto(file)
+base64("%%folder%%\%%~1",file)
+echo Base64:
+type %temp%\%~n0result.txt
+md5("%%folder%%\%%~1",file)
+echo Md5: %result%
+crc32("%%folder%%\%%~1")
+echo Crc32: %result%
+pause
+end
+function del()
+del "%folder%\%~1"
+goto start
+end
+function edit()
+"%edit%" "%folder%\%~2"
+end
+function create()
+set /p filename=Имя файла: 
+echo.>"%folder%\%filename%"
+goto start
+end
+function run(file)
+cls
+echo %folder%\%~1:
+call "%folder%\%~1"
+end
+function switch(newfolder)
+cleanmenu()
+set folder=%folder%\%~1
+for /F "tokens=*" %%a in ("%folder%") do set folder=%%~dpna
+echo %folder%
+cd "%folder%"
+goto start
+end
+function refresh()
+cleanmenu()
+goto start
+end
+function rename()
+set /p renname=Новое имя: 
+ren "%folder%\%~1" %renname%
+cleanmenu()
+goto start
+end
+function settings()
+cls
+cleanmenu()
+loadsettings()
+addtext(top,"Настройки")
+addxmenu(select,"Выбор")
+addxmenu(start,"Выход")
+call :addmenu setstring "edit : %edit%"
+call :addmenu setstring "cryptokey : %cryptokey%"
+call :addmenu setstring "f6key : %f6key%"
+call :addmenu setstring "cmdkey : %cmdkey%"
+call :addmenu setstring "renamekey : %renamekey%"
+call :addmenu setbool "hiddenfiles : %hiddenfiles%"
+addtext(bottom,"BY YTKAB0BP")
+menu()
+end
+function loadsettings()
+for /F "tokens=1,2* delims==" %%a in (%~dp0eazzymanager.conf) do set %%a=%%b
+end
+function setstring()
+for /F "tokens=1,2*" %%a in ("%~1") do set g1=%%a
+set /p g2=%g1%: 
+for /F "tokens=1,2* delims==" %%a in (%~dp0eazzymanager.conf) do (
+if q%%a==q%g1% (
+echo %g1%=%g2%>>%~dp0\neazzymanager.conf
+)
+if not q%%a==q%g1% (
+echo %%a=%%b>>%~dp0\neazzymanager.conf
+)
+)
+del %~dp0eazzymanager.conf
+ren %~dp0\neazzymanager.conf eazzymanager.conf
+goto settings
+end
+function setbool()
+for /F "tokens=1,2*" %%a in ("%~1") do set g1=%%a
+for /F "tokens=1,2* delims==" %%a in (%~dp0eazzymanager.conf) do (
+if q%%a==q%g1% (
+if %%b==true (
+echo %g1%=false
+echo %g1%=false>>%~dp0\neazzymanager.conf
+)
+if %%b==false (
+echo %g1%=true
+echo %g1%=true>>%~dp0\neazzymanager.conf
+)
+)
+if not q%%a==q%g1% (
+echo %%a=%%b>>%~dp0\neazzymanager.conf
+)
+)
+del %~dp0eazzymanager.conf
+ren %~dp0\neazzymanager.conf eazzymanager.conf
+goto settings
+end
+function help()
+cls
+echo --== EAZZYMANAGER v0.3 ==--
+echo #Made by YTKAB0BP
+echo f1 - Эта справка
+echo f2 - Переименовать
+echo f5 - Обновить список файлов
+echo f6 - Перейти по пути
+echo del - Удалить файл
+echo c - Показать хеш суммы
+echo --=======================--
+pause
+end
+function cmd()
+cmd /K
+end
+exit /b
+:cswitch
+set /p folder=Перейти: 
+for /F "tokens=*" %%a in ("%folder%") do set folder=%%~dpna
+cd /D "%folder%"
+cleanmenu()
+goto start
+exit /b

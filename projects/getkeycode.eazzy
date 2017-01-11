@@ -1,0 +1,4 @@
+@echo off
+scancode()
+echo %result%
+pause
